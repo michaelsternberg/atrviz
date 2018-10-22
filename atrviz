@@ -37,7 +37,6 @@ EOF
 #---------------------------
 # Examine command line args
 #---------------------------
-
 while getopts "l:f:t:s:b:vh" opt
 do
     case "$opt" in
@@ -152,8 +151,6 @@ fileout="${filein%.$ext_in}.$ext_out"
 width=$(($sectors * $bytes))
 height=$tracks
 
-    #-scale 100%x5300% \
-    #-crop '2304x40!+0+0' \
 if ! convert \
     -depth 8 \
     -size ${width}x${height} gray:$fifo \
