@@ -32,4 +32,5 @@ An visualization tool for Atari ATR floppy disk images.
 ## Acknowledgements
   * Thanks to Charles Mangin for sharing his Apple II disk visualization process. Information is available at https://web.archive.org/web/20180819020429/http://retroconnector.com/disk-images-edd/
   * Thanks to Kevin Savitz for thinking of and championing the *need* for such a tool.
-  * Thanks to Rob McMullin for testing and feedback. 
+  * Thanks to Rob McMullin for testing and feedback.
+  * Thaknks to ChoccyHobNob for creating and sharing tha Atari font used in the labeling. https://github.com/ChoccyHobNob/EightBit-Atari-Fonts
