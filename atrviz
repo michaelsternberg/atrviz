@@ -20,7 +20,7 @@ verbose=false
 display_usage()
 {
     cat <<EOF
-Usage: $(basename $0) [-l label] [-s sectors] [-t tracks] [-b bytes] [-v] -f file.atr
+Usage: $(basename $0) [-l label] [-s sectors] [-t tracks] [-b bytes] [-v] [-h] -f file.atr
 -l: label is quote-enclosed string. Use '\n' for multiple lines.
 -f: file.atr is an Atari floppy disk image.
 -t: number of tracks (default=40)
