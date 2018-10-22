@@ -26,11 +26,11 @@ An visualization tool for Atari ATR floppy disk images.
     $ ./atrviz -l "example.atr\nExample Output of atrviz (2018)\nmd5: $(md5sum example/example.atr | awk '{print $1}')" -f example/example.atr
 
 ## Caveats
-  * Testing on enhanced and dual-density images has not been done yet.
+  * No testing yet on enhanced or dual-density ATR images.
   * For amusement purposes only.
 
 ## Acknowledgements
   * Thanks to Charles Mangin for sharing his Apple II disk visualization process. Information is available at https://web.archive.org/web/20180819020429/http://retroconnector.com/disk-images-edd/
   * Thanks to Kevin Savetz for thinking of and championing the "need" for such a tool.
-  * Thanks to Rob McMullin for testing and feedback.
+  * Thanks to Rob McMullen for testing and feedback.
   * Thanks to ChoccyHobNob for creating and sharing tha Atari font used in the labeling. https://github.com/ChoccyHobNob/EightBit-Atari-Fonts
