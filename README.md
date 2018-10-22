@@ -21,7 +21,7 @@ An visualization tool for Atari ATR floppy disk images.
     Output is file.png
 
 ## Example
-  $ ./atrviz -l "example.atr\nExample Output of atrviz (2018)\nmd5: $(md5sum example/example.atr)" -f example/example.atr
+    $ ./atrviz -l "example.atr\nExample Output of atrviz (2018)\nmd5: $(md5sum example/example.atr)" -f example/example.atr
 
 ## Caveats
   * Testing on enhanced and dual-density images has not been done yet.
