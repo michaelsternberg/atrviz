@@ -1,0 +1,200 @@
+#!/usr/bin/env bash
+#--------------------------------------------------------------------------------
+#    File: atrviz
+#  Author: Michael Sternberg (@16kRAM)
+# Purpose: Create visualization of the bytes found on an Atari 8-bit ATR 
+#          floppy disk image.
+#     Ack: Based on the work of Charles Mangin (@option8).
+#--------------------------------------------------------------------------------
+set -u
+
+label=''
+ext_in=''
+ext_out=''
+filein=''
+tracks=40
+sectors=18
+bytes=128
+verbose=false
+
+display_usage()
+{
+    cat <<EOF
+Usage: $(basename $0) [-l label] [-s sectors] [-t tracks] [-b bytes] [-v] -f file.atr
+-l: label is quote-enclosed string. Use '\n' for multiple lines.
+-f: file.atr is an Atari floppy disk image.
+-t: number of tracks (default=40)
+-s: number of sectors/track (default=18)
+-b: number of bytes/sector (default=128)
+-v: verbose output
+-h: help (this output)
+Output is file.png
+
+Example: $(basename $0) -l "MULE.atr\nMULE (Ozark Softscape) 1983" -f MULE.atr
+EOF
+}
+
+#---------------------------
+# Examine command line args
+#---------------------------
+
+while getopts "l:f:t:s:b:vh" opt
+do
+    case "$opt" in
+        l) label="${OPTARG}" ;;
+        f) filein="${OPTARG}" ;;
+        t) tracks="${OPTARG}" ;;
+        s) sectors="${OPTARG}" ;;
+        b) bytes="${OPTARG}" ;;
+        v) verbose=true ;;
+        h) display_usage
+        exit ;;
+        *) display_usage
+        exit ;;
+    esac
+done
+
+if [ -z "$filein" ]
+then
+    echo "$(basename $0): Filename can not be null."
+    display_usage
+    exit
+fi
+
+#---------------------------------------------
+# Assert numeric only in tracks/sectors/bytes
+#---------------------------------------------
+if ! (echo "$tracks$sectors$bytes" | egrep '^[0-9]*$') > /dev/null
+then
+    echo "$(basename $0): Expecting numeric data only in tracks/sectors/bytes."
+    display_usage
+    exit
+fi
+
+#---------------------------------------------
+# Assert tracks/sectors/bytes == file size
+#---------------------------------------------
+if [ -e $(which stat) ]
+then
+    filesize=$(stat $filein | grep -i size: | awk '{print $2}')
+    expected=$(($tracks * $sectors * bytes + 16))
+
+    if [ $filesize -ne $expected ]
+    then
+        echo "$(basename $0): Error. Actual filesize does not match expected."
+        echo "$(basename $0): Actual........$filesize"
+        echo "$(basename $0): Expected......$expected"
+        echo "$(basename $0): Expected size = tracks * sectors * bytes + 16 (header)"
+        exit 1
+    fi
+fi
+
+
+
+if [ ! -r "$filein" ]
+then
+    echo "$(basename $0) Unable to open [$filein]"
+    exit 1
+fi
+
+#---------------------------------------------------------------
+# Set case of output extension to match case of input extension.
+#---------------------------------------------------------------
+if [ "${filein%.atr}" != "$filein" ]
+then
+    ext_in='atr'
+    ext_out='png'
+elif [ "${filein%.ATR}" != "$filein" ]
+then
+    ext_in='ATR'
+    ext_out='PNG'
+else
+    echo "$(basename $0): [$filein] is not an .atr file"
+    exit 1
+fi
+
+#---------------------------------------------------------------
+# Chop off 16 byte ATR header
+#---------------------------------------------------------------
+fifo=${filein%.$ext_in}.fifo
+
+if [ -e $fifo ]
+then
+    if ! rm -f $fifo
+    then
+        echo "$(basename $0): Unable to delete fifo [$fifo]"
+        exit 1
+    fi
+fi
+
+if ! mkfifo $fifo
+then
+    echo "$(basename $0): Unable to create fifo [$fifo]"
+    exit 1
+fi
+
+tail -c +17 $filein > $fifo &
+
+#-----------------------------------
+# Create visualization of disk bytes
+#-----------------------------------
+$verbose && cat <<EOF
+Tracks...........$tracks
+Sectors..........$sectors
+Bytes/Sector.....$bytes
+
+EOF
+$verbose && echo "INFO> Converting $filein..."
+
+tmpfile="${filein%.$ext_in}.tmp.$ext_out"
+fileout="${filein%.$ext_in}.$ext_out"
+
+width=$(($sectors * $bytes))
+height=$tracks
+
+    #-scale 100%x5300% \
+    #-crop '2304x40!+0+0' \
+if ! convert \
+    -depth 8 \
+    -size ${width}x${height} gray:$fifo \
+    -crop '2000!+0+0' \
+    -scale 100%x5300% \
+    -flip \
+    -virtual-pixel 'transparent' \
+    -distort Polar '1024 256' \
+    -color-matrix "0.0 0.0 0.0  1.0 0.0 0.0  0.8 0.5 0.8" \
+    "$tmpfile"
+then
+    echo "$(basename $0): Error while converting [$filein]"
+    exit 1
+fi
+
+# Wait for tail to completely terminate
+wait
+rm $fifo 
+
+#-------------------------------
+# Create title/label underneath
+#-------------------------------
+if [ -n "$label" ]
+then
+    $verbose && echo "INFO> Labeling $filein..."
+
+    if ! montage \
+        -label "$label" $tmpfile \
+        -font "EightBit_Atari-Regular.ttf" \
+        -pointsize 50 \
+        -frame 10 \
+        -geometry +0+0 \
+        "$fileout"
+    then
+        echo "$(basename $0): Error during montage [$filein]"
+        exit 1
+    fi
+    rm $tmpfile
+else
+    mv -f $tmpfile $fileout
+fi
+
+$verbose && echo "INFO> Finished."
+exit
