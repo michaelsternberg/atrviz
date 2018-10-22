@@ -2,9 +2,9 @@
 An visualization tool for Atari ATR floppy disk images.
 
 ## Requirements
-**atrviz** is a bash shell script that calls the ImageMagick **convert** and **montage** tools. Other GNU or Unix tools are used such as awk and tail. Therefore, some flavor of Unix is needed:
+**atrviz** is a bash shell script that calls the ImageMagick **convert** and **montage** tools. Other GNU or Unix tools are used such as awk and tail. Therefore, some Unix-like environment is needed with ImageMagick installed:
  * Linux
- * Mac OSX + homebrew
+ * Mac OSX + homebrew or MacPorts
  * Windows + Cygwin 
  * Windows 10 Subsystem for Linux
 
