@@ -47,9 +47,9 @@ do
         b) bytes="${OPTARG}" ;;
         v) verbose=true ;;
         h) display_usage
-        exit ;;
+           exit ;;
         *) display_usage
-        exit ;;
+           exit ;;
     esac
 done
 
