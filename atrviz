@@ -88,8 +88,6 @@ then
     fi
 fi
 
-
-
 if [ ! -r "$filein" ]
 then
     echo "$(basename $0) Unable to open [$filein]"
